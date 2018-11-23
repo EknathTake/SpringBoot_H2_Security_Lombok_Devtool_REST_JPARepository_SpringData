@@ -1,36 +1,44 @@
 package com.ekspract.application;
 
+import javax.inject.Inject;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+
+import com.ekspract.restsecurity.RESTAuthenticationEntryPoint;
+import com.ekspract.restsecurity.RESTAuthenticationFailureHandler;
+import com.ekspract.restsecurity.RESTAuthenticationSuccessHandler;
 
 @Configuration
-//@EnableWebSecurity
-public class SecurityConfig /* extends WebSecurityConfigurerAdapter */ {
+@EnableWebSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-	/*
-	 * @Override public void configure(WebSecurity web) throws Exception {
-	 * web.ignoring() // Spring Security should completely ignore URLs starting with
-	 * /resources/ .antMatchers("/resources/**"); }
-	 */
-	/*
-	 * @Override protected void configure(HttpSecurity http) throws Exception {
-	 * http.authorizeRequests().antMatchers("",
-	 * "/home").permitAll().antMatchers("/user/**").permitAll().anyRequest()
-	 * .hasRole("USER").antMatchers("/user/**").permitAll().anyRequest().hasRole(
-	 * "ADMIN")
-	 * .antMatchers("/admin/**").permitAll().anyRequest().hasRole("ADMIN").and() //
-	 * Possibly more configuration ... .formLogin() // enable form based log in
-	 * .loginPage("/login").failureUrl("/login") // set permitAll for all URLs
-	 * associated with Form Login
-	 * .permitAll().and().logout().logoutSuccessUrl("/login").permitAll(); }
-	 */
+	@Inject
+	private RESTAuthenticationEntryPoint authenticationEntryPoint;
 
-	/*
-	 * @Override protected void configure(AuthenticationManagerBuilder auth) throws
-	 * Exception { // enable in memory based authentication with a user named "user"
-	 * and "admin"
-	 * auth.inMemoryAuthentication().withUser("user").password("password").roles(
-	 * "USER").and().withUser("admin") .password("password").roles("USER", "ADMIN");
-	 * }
-	 */
+	@Inject
+	private RESTAuthenticationFailureHandler authenticationFailureHandler;
+
+	@Inject
+	private RESTAuthenticationSuccessHandler authenticationSuccessHandler;
+
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint);
+		http.authorizeRequests().antMatchers("/", "/home").permitAll().anyRequest().authenticated().and().formLogin()
+				.loginPage("/login").successHandler(authenticationSuccessHandler)
+				.failureHandler(authenticationFailureHandler).permitAll().and().logout().permitAll();
+
+	}
+
+	@Autowired
+	public void configureAuth(AuthenticationManagerBuilder auth) throws Exception {
+		auth.inMemoryAuthentication().withUser("thomas").password("password").roles("USER").and().withUser("joe")
+				.password("password").roles("USER").and().withUser("admin").password("password").roles("ADMIN");
+	}
 
 }

@@ -17,7 +17,7 @@ import com.ekspract.service.IStudentService;
 @RestController
 public class StudentController {
 
-	@Inject
+	@Inject /// @Autowired
 	@Named("studentService")
 	private IStudentService studentService;
 
@@ -29,13 +29,11 @@ public class StudentController {
 	@GetMapping(path = "/students/{id}")
 	public Student getStudentById(@PathVariable(name = "id") Long id) {
 		return studentService.getStudentById(id);
-		// return null;
 	}
 
 	@PostMapping(path = "/students")
 	public Student saveStudent(@RequestBody Student student) {
-
+		student.getId();
 		return studentService.saveStudent(student);
-		// return student;
 	}
 }
