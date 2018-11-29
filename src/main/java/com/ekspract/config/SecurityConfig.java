@@ -1,4 +1,4 @@
-package com.ekspract.application;
+package com.ekspract.config;
 
 import javax.inject.Inject;
 

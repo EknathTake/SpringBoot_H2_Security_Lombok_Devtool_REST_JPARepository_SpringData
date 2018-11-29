@@ -33,7 +33,6 @@ public class StudentController {
 
 	@PostMapping(path = "/students")
 	public Student saveStudent(@RequestBody Student student) {
-		student.getId();
 		return studentService.saveStudent(student);
 	}
 }
